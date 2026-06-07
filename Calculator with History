@@ -4,29 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Modern Sky Blue Calculator with History</title>
-    <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS for layout scaffolding -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
         :root {
-            --sky-light: #e0f2fe; /* Sky 100 */
-            --sky-hover: #bae6fd; /* Sky 200 */
-            --sky-main: #0ea5e9;  /* Sky 500 */
-            --sky-dark: #0284c7;  /* Sky 600 */
-            --bg-page: #f8fafc;   /* Slate 50 (Very light gray/white background) */
-            --text-dark: #0f172a; /* Slate 900 */
-            --text-muted: #64748b; /* Slate 500 */
+            --sky-light: #e0f2fe;
+            --sky-hover: #bae6fd;
+            --sky-main: #0ea5e9;
+            --sky-dark: #0284c7;
+            --bg-page: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
             
-            /* Glass properties adapted for high contrast light theme */
             --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(14, 165, 233, 0.35); /* Sky blue border for absolute visibility */
+            --glass-border: rgba(14, 165, 233, 0.35);
             
-            /* Button styling with deeper shadows for 3D depth and definition */
             --btn-bg: #ffffff;
             --btn-shadow: 0 5px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(14, 165, 233, 0.05);
             --btn-shadow-hover: 0 8px 16px rgba(14, 165, 233, 0.15), 0 2px 6px rgba(14, 165, 233, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --sky-light: #0c4a6e;
+            --sky-hover: #075985;
+            --bg-page: #0f172a;
+            --text-dark: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            --glass-bg: rgba(30, 41, 59, 0.85);
+            --glass-border: rgba(56, 189, 248, 0.25);
+            
+            --btn-bg: #1e293b;
+            --btn-shadow: 0 5px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(14, 165, 233, 0.1);
+            --btn-shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(14, 165, 233, 0.15);
         }
 
         body {
@@ -34,7 +45,7 @@
             margin: 0;
             padding: 1rem;
             min-height: 100vh;
-            min-height: 100dvh; /* Dynamic viewport height to prevent mobile browser bar clipping */
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -43,11 +54,11 @@
             overflow-x: hidden;
             color: var(--text-dark);
             position: relative;
-            -webkit-user-select: none; /* Prevent accidental text highlighting while rapid tapping */
+            -webkit-user-select: none;
             user-select: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Soft, ambient glowing background lights */
         .bg-shape {
             position: absolute;
             border-radius: 50%;
@@ -70,35 +81,34 @@
             right: 10%;
         }
 
-        /* Glassmorphism Calculator Container with prominent edges and shadows */
         .calculator {
             position: relative;
             z-index: 10;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 2px solid var(--glass-border); /* 2px crisp border */
+            border: 2px solid var(--glass-border);
             border-radius: 32px;
             padding: 2rem;
             width: 100%;
             max-width: 380px;
             box-shadow: 0 25px 50px -12px rgba(14, 165, 233, 0.25), 
                         0 8px 24px rgba(15, 23, 42, 0.04),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
-            overflow: hidden; /* To mask the history overlay panel slide-up */
-            touch-action: manipulation; /* Eliminate mobile tap-delay */
+            overflow: hidden;
+            touch-action: manipulation;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
-        /* Screen Display Styling */
         .display {
             background: rgba(255, 255, 255, 0.8);
             border-radius: 20px;
             padding: 1.25rem;
             text-align: right;
-            border: 1.5px solid var(--glass-border); /* Clear display borders */
+            border: 1.5px solid var(--glass-border);
             box-shadow: inset 0 2px 8px rgba(14, 165, 233, 0.08);
             min-height: 110px;
             display: flex;
@@ -106,6 +116,11 @@
             justify-content: space-between;
             word-wrap: break-word;
             word-break: break-all;
+            transition: background-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .display {
+            background: rgba(15, 23, 42, 0.6);
         }
 
         .previous-operand {
@@ -121,7 +136,7 @@
             font-weight: 600;
             line-height: 1.2;
             letter-spacing: 0.5px;
-            transition: font-size 0.2s;
+            transition: font-size 0.2s, color 0.3s ease;
         }
         
         .current-operand.error {
@@ -129,20 +144,17 @@
             font-size: 1.3rem;
         }
 
-        /* Keypad Grid for 1:1 Aspect Ratio Round Buttons */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
         }
 
-        /* Perfect Circular Button Styles with emphasized borders and shadows */
         .btn {
             background: var(--btn-bg);
-            /* 2px border combined with sky blue provides ultra-clear geometry for roundness */
             border: 2px solid rgba(14, 165, 233, 0.22); 
-            border-radius: 50%; /* Perfect circle default */
-            aspect-ratio: 1 / 1; /* Guarantees standard 1:1 round shape */
+            border-radius: 50%;
+            aspect-ratio: 1 / 1;
             color: var(--text-dark);
             font-size: 1.25rem;
             font-weight: 500;
@@ -161,48 +173,55 @@
             touch-action: manipulation;
         }
 
-        /* Double spacing layout override for equals key */
         .span-2 {
             grid-column: span 2;
-            aspect-ratio: auto !important; /* Cancel standard 1:1 aspect ratio */
-            border-radius: 9999px !important; /* Smooth pill shape instead of circle */
+            aspect-ratio: auto !important;
+            border-radius: 9999px !important;
         }
 
-        /* Light, Elegant Desktop Hover Effects (Only active on pointer devices) */
         @media (hover: hover) {
             .btn:hover {
                 background: var(--sky-light);
                 border-color: rgba(56, 189, 248, 0.6);
-                transform: translateY(-1.5px); /* Light and gentle hover lift */
+                transform: translateY(-1.5px);
                 box-shadow: var(--btn-shadow-hover);
-                color: var(--sky-dark);
+                color: var(--sky-main);
+            }
+            [data-theme="dark"] .btn:hover {
+                color: #38bdf8;
             }
             .btn-operator:hover {
                 background: var(--sky-main);
-                color: white;
+                color: white !important;
                 border-color: var(--sky-main);
             }
             .btn-action:hover {
-                background: #fee2e2; /* Red 100 */
+                background: #fee2e2;
                 color: #dc2626;
                 border-color: rgba(239, 68, 68, 0.3);
                 box-shadow: 0 6px 15px rgba(239, 68, 68, 0.15);
+            }
+            [data-theme="dark"] .btn-action:hover {
+                background: rgba(239, 68, 68, 0.2);
             }
             .btn-equals:hover {
                 background: linear-gradient(135deg, var(--sky-dark), #0369a1);
                 color: white;
                 box-shadow: 0 8px 22px rgba(14, 165, 233, 0.45);
             }
+            
+            [data-theme="dark"] #history-toggle-btn:hover,
+            [data-theme="dark"] #theme-toggle-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
         }
 
-        /* Tactical Mobile-First Tap Response (:active) */
         .btn:active {
             transform: scale(0.92) !important;
             background: var(--sky-hover);
             box-shadow: inset 0 2px 4px rgba(14, 165, 233, 0.15);
         }
 
-        /* Button Variant Accents */
         .btn-operator {
             color: var(--sky-main);
             font-weight: 600;
@@ -214,22 +233,20 @@
         }
 
         .btn-action {
-            color: #ef4444; /* Soft Red for clear/backspace */
+            color: #ef4444;
             font-weight: 600;
         }
         
         .btn-action:active {
-            background: #fecaca !important; /* Red 200 */
+            background: #fecaca !important;
             color: #dc2626 !important;
         }
 
-        /* Custom operator styles for non-red actions */
         .btn-percentage {
             color: var(--sky-main);
             font-weight: 600;
         }
 
-        /* Round Equals Key with Sky Blue Gradient */
         .btn-equals {
             background: linear-gradient(135deg, var(--sky-main), var(--sky-dark));
             color: white;
@@ -243,13 +260,12 @@
             color: white !important;
         }
 
-        /* Sliding History Panel Styling as a BottomSheet */
         .history-panel {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 88%; /* High sheet style to provide lots of screen area for items and clear button on mobile */
+            height: 88%;
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -259,11 +275,25 @@
             padding: 1.25rem;
             transform: translateY(100%);
             opacity: 0;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background-color 0.3s ease;
             display: flex;
             flex-direction: column;
             gap: 1rem;
             box-shadow: 0 -12px 35px rgba(14, 165, 233, 0.15);
+        }
+
+        [data-theme="dark"] .history-panel {
+            background: rgba(30, 41, 59, 0.98);
+            box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.5);
+            border-top-color: var(--glass-border);
+        }
+
+        [data-theme="dark"] .history-panel h3 {
+            color: #f8fafc;
+        }
+        
+        [data-theme="dark"] .border-slate-200 {
+            border-color: rgba(255,255,255,0.1);
         }
 
         .history-panel.open {
@@ -271,7 +301,6 @@
             opacity: 1;
         }
 
-        /* Pull-down gesture handle for mobile sheet vibe */
         .panel-handle {
             width: 45px;
             height: 5px;
@@ -288,16 +317,18 @@
             flex-direction: column;
             gap: 0.65rem;
             padding-right: 4px;
-            -webkit-overflow-scrolling: touch; /* Smooth iOS momentum scrolling */
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* Scrollbar customization for History Log */
         .history-list::-webkit-scrollbar {
             width: 5px;
         }
         .history-list::-webkit-scrollbar-track {
             background: rgba(14, 165, 233, 0.05);
             border-radius: 10px;
+        }
+        [data-theme="dark"] .history-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
         }
         .history-list::-webkit-scrollbar-thumb {
             background: rgba(14, 165, 233, 0.3);
@@ -314,11 +345,22 @@
             transition: transform 0.15s ease, background 0.15s ease;
         }
 
+        [data-theme="dark"] .history-item {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: rgba(14, 165, 233, 0.15);
+        }
+        [data-theme="dark"] .history-item .text-slate-500 {
+            color: #94a3b8;
+        }
+
         @media (hover: hover) {
             .history-item:hover {
                 background: rgba(14, 165, 233, 0.12);
                 border-color: rgba(14, 165, 233, 0.3);
                 transform: scale(1.02);
+            }
+            [data-theme="dark"] .history-item:hover {
+                background: rgba(14, 165, 233, 0.15);
             }
         }
 
@@ -327,7 +369,30 @@
             background: rgba(14, 165, 233, 0.15);
         }
 
-        /* Responsive Adjustments for Mobile Viewports */
+        [data-theme="dark"] #history-close-btn {
+            color: #94a3b8;
+        }
+        [data-theme="dark"] #history-close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #f8fafc;
+        }
+        [data-theme="dark"] #history-close-btn:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        [data-theme="dark"] #history-clear-btn {
+            background: rgba(14, 165, 233, 0.1);
+            color: #38bdf8;
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+        [data-theme="dark"] #history-clear-btn:active {
+            background: rgba(14, 165, 233, 0.2);
+        }
+        [data-theme="dark"] .history-list p.text-xs,
+        [data-theme="dark"] .history-list svg.text-slate-300 {
+            color: #64748b;
+        }
+
         @media (max-width: 400px) {
             body {
                 padding: 0.5rem;
@@ -343,18 +408,17 @@
             }
             .btn {
                 font-size: 1.15rem;
-                border-width: 2px; /* Maintain clear visibility on high resolution small viewports */
+                border-width: 2px;
             }
             .current-operand {
                 font-size: 2.1rem;
             }
             .history-panel {
-                height: 90%; /* Let it cover slightly more area on smaller devices to keep viewport healthy */
+                height: 90%;
                 padding: 1.25rem 1rem;
             }
         }
 
-        /* Special micro-screens check (e.g. folded foldables, small iPhone SE devices) */
         @media (max-width: 325px) {
             .calculator {
                 padding: 1rem;
@@ -373,85 +437,77 @@
 </head>
 <body>
 
-    <!-- Glowing light background accent fields -->
     <div class="bg-shape shape1"></div>
     <div class="bg-shape shape2"></div>
 
     <div class="calculator">
-        <!-- Display Header and Screen Group -->
         <div class="flex flex-col gap-2">
-            <!-- Header containing App Title and History Toggle Button -->
             <div class="flex items-center justify-between px-1 select-none">
                 <div class="text-xs sm:text-sm font-bold tracking-widest text-sky-500 uppercase drop-shadow-sm">
                     Digital Calculator
                 </div>
-                <!-- History Toggle Icon Button (Optimized touch area with inline padding) -->
-                <button id="history-toggle-btn" class="p-2 sm:p-2.5 rounded-full hover:bg-sky-100/60 active:bg-sky-200/80 text-sky-500 transition-colors duration-200" title="View History">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </button>
+                <div class="flex items-center gap-1">
+                    <button id="theme-toggle-btn" class="p-2 sm:p-2.5 rounded-full hover:bg-sky-100/60 active:bg-sky-200/80 text-sky-500 transition-colors duration-200" title="Toggle Theme">
+                        <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-5 sm:w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button id="history-toggle-btn" class="p-2 sm:p-2.5 rounded-full hover:bg-sky-100/60 active:bg-sky-200/80 text-sky-500 transition-colors duration-200" title="View History">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <!-- Calculator Display -->
             <div class="display">
                 <div class="previous-operand" id="previous-operand"></div>
                 <div class="current-operand" id="current-operand">0</div>
             </div>
         </div>
 
-        <!-- Keypad configured to generate perfect circles with double-spaced equals key -->
         <div class="keypad">
-            <!-- Row 1 -->
             <button class="btn btn-action" data-action="clear">C</button>
             <button class="btn btn-action" data-action="delete">⌫</button>
             <button class="btn btn-percentage" data-action="percent">%</button>
             <button class="btn btn-operator" data-operation="÷">÷</button>
             
-            <!-- Row 2 -->
             <button class="btn" data-number="7">7</button>
             <button class="btn" data-number="8">8</button>
             <button class="btn" data-number="9">9</button>
             <button class="btn btn-operator" data-operation="×">×</button>
             
-            <!-- Row 3 -->
             <button class="btn" data-number="4">4</button>
             <button class="btn" data-number="5">5</button>
             <button class="btn" data-number="6">6</button>
             <button class="btn btn-operator" data-operation="-">-</button>
             
-            <!-- Row 4 -->
             <button class="btn" data-number="1">1</button>
             <button class="btn" data-number="2">2</button>
             <button class="btn" data-number="3">3</button>
             <button class="btn btn-operator" data-operation="+">+</button>
             
-            <!-- Row 5 -->
             <button class="btn" data-number="0">0</button>
             <button class="btn" data-number=".">.</button>
             <button class="btn btn-equals span-2" data-action="calculate">=</button>
         </div>
 
-        <!-- Sliding History Panel Inside the Card -->
         <div class="history-panel" id="history-panel">
-            <!-- Pull sheet handle element -->
             <div class="panel-handle"></div>
             
             <div class="flex items-center justify-between border-b pb-2 border-slate-200">
                 <h3 class="font-bold text-slate-800 text-sm sm:text-base">History</h3>
-                <!-- Close Button (Padded touch targets for mobile) -->
                 <button id="history-close-btn" class="p-2 -mr-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 active:bg-slate-200 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 11-1.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </button>
             </div>
-            <!-- Dynamic History List -->
             <div class="history-list" id="history-list">
-                <!-- Content injected dynamically via JavaScript -->
             </div>
-            <!-- Clear History Action Container -->
             <div class="flex gap-2 mt-auto pt-2 border-t border-slate-200">
-                <!-- Clear Button styled with beautiful premium sky-blue outline -->
                 <button id="history-clear-btn" class="w-full py-2.5 sm:py-3 bg-sky-50 text-sky-600 active:bg-sky-100 text-xs sm:text-sm font-semibold rounded-2xl border border-sky-200 active:border-sky-300 transition-all text-center">
                     Clear History
                 </button>
@@ -498,7 +554,6 @@
                     this.shouldResetScreen = false;
                 }
                 
-                // Avoid multiple decimal inputs
                 if (number === '.' && this.currentOperand.includes('.')) return;
                 
                 if (this.currentOperand === '0' && number !== '.') {
@@ -570,7 +625,6 @@
                         return;
                 }
 
-                // Precision check
                 computation = Math.round(computation * 10000000000) / 10000000000;
                 
                 if (!isFinite(computation)) {
@@ -578,7 +632,6 @@
                     return;
                 }
 
-                // Push calculation successfully computed to history
                 const expression = `${this.getDisplayNumber(this.previousOperand)} ${this.operation} ${this.getDisplayNumber(this.currentOperand)}`;
                 this.saveToHistory(expression, this.getDisplayNumber(computation));
 
@@ -597,8 +650,8 @@
 
             saveToHistory(expression, result) {
                 const historyItem = { expression, result };
-                this.history.unshift(historyItem); // Insert at beginning of log
-                if (this.history.length > 50) this.history.pop(); // Limit history to 50 items
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) this.history.pop();
                 localStorage.setItem('calc_history', JSON.stringify(this.history));
                 this.updateHistoryUI();
             }
@@ -629,19 +682,16 @@
                     </div>
                 `).join('');
 
-                // Add item restoration clicks
                 const items = this.historyListElement.querySelectorAll('.history-item');
                 items.forEach(item => {
                     item.addEventListener('click', () => {
                         const idx = item.getAttribute('data-index');
-                        const selectedResult = this.history[idx].result.replace(/,/g, ''); // strip formatting
+                        const selectedResult = this.history[idx].result.replace(/,/g, '');
                         
-                        // Populate state with restored result
                         this.clear();
                         this.currentOperand = selectedResult;
                         this.updateDisplay();
                         
-                        // Close history panel
                         document.getElementById('history-panel').classList.remove('open');
                     });
                 });
@@ -704,7 +754,6 @@
             }
         }
 
-        // Initialize elements
         const previousOperandTextElement = document.getElementById('previous-operand');
         const currentOperandTextElement = document.getElementById('current-operand');
         const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement);
@@ -716,13 +765,39 @@
         const clearButton = document.querySelector('[data-action="clear"]');
         const percentButton = document.querySelector('[data-action="percent"]');
 
-        // History panel DOM elements
         const historyPanel = document.getElementById('history-panel');
         const historyToggleBtn = document.getElementById('history-toggle-btn');
         const historyCloseBtn = document.getElementById('history-close-btn');
         const historyClearBtn = document.getElementById('history-clear-btn');
+        
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const themeIconMoon = document.getElementById('theme-icon-moon');
+        const themeIconSun = document.getElementById('theme-icon-sun');
 
-        // Toggle History panel
+        const savedTheme = localStorage.getItem('calc_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.body.setAttribute('data-theme', 'dark');
+            themeIconMoon.classList.add('hidden');
+            themeIconSun.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('calc_theme', 'light');
+                themeIconMoon.classList.remove('hidden');
+                themeIconSun.classList.add('hidden');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('calc_theme', 'dark');
+                themeIconMoon.classList.add('hidden');
+                themeIconSun.classList.remove('hidden');
+            }
+        });
+
         historyToggleBtn.addEventListener('click', () => {
             historyPanel.classList.add('open');
         });
@@ -735,7 +810,6 @@
             calculator.clearHistory();
         });
 
-        // Click visual feedback simulation
         const triggerButtonFeedback = (btnElement) => {
             if(!btnElement) return;
             btnElement.style.transform = 'translateY(1px) scale(0.96)';
@@ -746,7 +820,6 @@
             }, 100);
         };
 
-        // Click Event Handlers
         numberButtons.forEach(button => {
             button.addEventListener('click', () => {
                 calculator.appendNumber(button.innerText);
@@ -781,7 +854,6 @@
             calculator.updateDisplay();
         });
 
-        // Keyboard mapping
         document.addEventListener('keydown', (e) => {
             if (['Enter', 'Backspace', 'Escape', ' '].includes(e.key)) {
                 if(e.key === ' ' && e.target === document.body) e.preventDefault();
